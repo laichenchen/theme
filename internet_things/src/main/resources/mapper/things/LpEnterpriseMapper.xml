@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.things.mapper.LpEnterpriseMapper">
+    
+    <resultMap type="LpEnterprise" id="LpEnterpriseResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="address"    column="address"    />
+        <result property="addressDetail"    column="address_detail"    />
+        <result property="addressMap"    column="address_map"    />
+        <result property="contact"    column="contact"    />
+        <result property="contactMobile"    column="contact_mobile"    />
+        <result property="email"    column="email"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remarks"    column="remarks"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectLpEnterpriseVo">
+        select id, name, address, address_detail, address_map, contact, contact_mobile, email, create_by, create_time, update_by, update_time, remarks, del_flag from lp_enterprise
+    </sql>
+
+    <select id="selectLpEnterpriseList" parameterType="LpEnterprise" resultMap="LpEnterpriseResult">
+        <include refid="selectLpEnterpriseVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="contact != null  and contact != ''"> and contact like concat('%', #{contact}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectLpEnterpriseById" parameterType="String" resultMap="LpEnterpriseResult">
+        <include refid="selectLpEnterpriseVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertLpEnterprise" parameterType="LpEnterprise">
+        insert into lp_enterprise
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="address != null">address,</if>
+            <if test="addressDetail != null">address_detail,</if>
+            <if test="addressMap != null">address_map,</if>
+            <if test="contact != null">contact,</if>
+            <if test="contactMobile != null">contact_mobile,</if>
+            <if test="email != null">email,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateDate != null">update_time,</if>
+            <if test="remarks != null">remarks,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="address != null">#{address},</if>
+            <if test="addressDetail != null">#{addressDetail},</if>
+            <if test="addressMap != null">#{addressMap},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="contactMobile != null">#{contactMobile},</if>
+            <if test="email != null">#{email},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateDate != null">#{updateDate},</if>
+            <if test="remarks != null">#{remarks},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLpEnterprise" parameterType="LpEnterprise">
+        update lp_enterprise
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="addressDetail != null">address_detail = #{addressDetail},</if>
+            <if test="addressMap != null">address_map = #{addressMap},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="contactMobile != null">contact_mobile = #{contactMobile},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateDate != null">update_time = #{updateDate},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteLpEnterpriseById" parameterType="String">
+        delete from lp_enterprise where id = #{id}
+    </delete>
+
+    <delete id="deleteLpEnterpriseByIds" parameterType="String">
+        delete from lp_enterprise where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

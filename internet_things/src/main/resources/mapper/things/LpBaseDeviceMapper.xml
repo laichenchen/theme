@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.things.mapper.LpBaseDeviceMapper">
+    
+    <resultMap type="LpBaseDevice" id="LpBaseDeviceResult">
+        <result property="id"    column="ID"    />
+        <result property="name"    column="name"    />
+        <result property="model"    column="model"    />
+        <result property="type"    column="type"    />
+        <result property="fileIds"    column="file_ids"    />
+        <result property="productionDate"    column="production_date"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remarks"    column="remarks"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectLpBaseDeviceVo">
+        select ID, name, model, type, file_ids, production_date, supplier_id, create_by, create_time, update_by, update_time, remarks, del_flag from lp_base_device
+    </sql>
+
+    <select id="selectLpBaseDeviceList" parameterType="LpBaseDevice" resultMap="LpBaseDeviceResult">
+        <include refid="selectLpBaseDeviceVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="supplierId != null  and supplierId != ''"> and supplier_id = #{supplierId}</if>
+        </where>
+    </select>
+    
+    <select id="selectLpBaseDeviceById" parameterType="String" resultMap="LpBaseDeviceResult">
+        <include refid="selectLpBaseDeviceVo"/>
+        where ID = #{id}
+    </select>
+        
+    <insert id="insertLpBaseDevice" parameterType="LpBaseDevice">
+        insert into lp_base_device
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">ID,</if>
+            <if test="name != null">name,</if>
+            <if test="model != null">model,</if>
+            <if test="type != null">type,</if>
+            <if test="fileIds != null">file_ids,</if>
+            <if test="productionDate != null">production_date,</if>
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null and updateBy != ''">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remarks != null">remarks,</if>
+            <if test="delFlag != null and delFlag != ''">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="model != null">#{model},</if>
+            <if test="type != null">#{type},</if>
+            <if test="fileIds != null">#{fileIds},</if>
+            <if test="productionDate != null">#{productionDate},</if>
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remarks != null">#{remarks},</if>
+            <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLpBaseDevice" parameterType="LpBaseDevice">
+        update lp_base_device
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="model != null">model = #{model},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="fileIds != null">file_ids = #{fileIds},</if>
+            <if test="productionDate != null">production_date = #{productionDate},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="delFlag != null and delFlag != ''">del_flag = #{delFlag},</if>
+        </trim>
+        where ID = #{id}
+    </update>
+
+    <delete id="deleteLpBaseDeviceById" parameterType="String">
+        delete from lp_base_device where ID = #{id}
+    </delete>
+
+    <delete id="deleteLpBaseDeviceByIds" parameterType="String">
+        delete from lp_base_device where ID in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

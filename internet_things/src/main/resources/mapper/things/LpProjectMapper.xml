@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.things.mapper.LpProjectMapper">
+    
+    <resultMap type="LpProject" id="LpProjectResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="head"    column="head"    />
+        <result property="headPhone"    column="head_phone"    />
+        <result property="pa"    column="pa"    />
+        <result property="pb"    column="pb"    />
+        <result property="fileIds"    column="file_ids"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remarks"    column="remarks"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectLpProjectVo">
+        select id, name, head, head_phone, pa, pb, file_ids, create_by, create_time, update_by, update_time, remarks, del_flag from lp_project
+    </sql>
+
+    <select id="selectLpProjectList" parameterType="LpProject" resultMap="LpProjectResult">
+        <include refid="selectLpProjectVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="head != null  and head != ''"> and head = #{head}</if>
+            <if test="headPhone != null  and headPhone != ''"> and head_phone = #{headPhone}</if>
+            <if test="pa != null  and pa != ''"> and pa = #{pa}</if>
+            <if test="pb != null  and pb != ''"> and pb = #{pb}</if>
+        </where>
+    </select>
+    
+    <select id="selectLpProjectById" parameterType="String" resultMap="LpProjectResult">
+        <include refid="selectLpProjectVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertLpProject" parameterType="LpProject">
+        insert into lp_project
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="head != null">head,</if>
+            <if test="headPhone != null">head_phone,</if>
+            <if test="pa != null">pa,</if>
+            <if test="pb != null">pb,</if>
+            <if test="fileIds != null">file_ids,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remarks != null">remarks,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="head != null">#{head},</if>
+            <if test="headPhone != null">#{headPhone},</if>
+            <if test="pa != null">#{pa},</if>
+            <if test="pb != null">#{pb},</if>
+            <if test="fileIds != null">#{fileIds},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remarks != null">#{remarks},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLpProject" parameterType="LpProject">
+        update lp_project
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="head != null">head = #{head},</if>
+            <if test="headPhone != null">head_phone = #{headPhone},</if>
+            <if test="pa != null">pa = #{pa},</if>
+            <if test="pb != null">pb = #{pb},</if>
+            <if test="fileIds != null">file_ids = #{fileIds},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteLpProjectById" parameterType="String">
+        delete from lp_project where id = #{id}
+    </delete>
+
+    <delete id="deleteLpProjectByIds" parameterType="String">
+        delete from lp_project where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>
