@@ -52,7 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
-            <if test="updateDate != null">update_time,</if>
+            <if test="updateTime != null">update_time,</if>
             <if test="remarks != null">remarks,</if>
             <if test="delFlag != null">del_flag,</if>
          </trim>
@@ -68,7 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
-            <if test="updateDate != null">#{updateDate},</if>
+            <if test="updateTime != null">#{updateTime},</if>
             <if test="remarks != null">#{remarks},</if>
             <if test="delFlag != null">#{delFlag},</if>
          </trim>
@@ -87,7 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
-            <if test="updateDate != null">update_time = #{updateDate},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="remarks != null">remarks = #{remarks},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
         </trim>

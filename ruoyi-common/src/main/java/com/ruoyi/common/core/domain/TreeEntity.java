@@ -16,7 +16,7 @@ public class TreeEntity extends BaseEntity
     private String parentName;
 
     /** 父菜单ID */
-    private Long parentId;
+    private String parentId;
 
     /** 显示顺序 */
     private Integer orderNum;
@@ -37,12 +37,12 @@ public class TreeEntity extends BaseEntity
         this.parentName = parentName;
     }
 
-    public Long getParentId()
+    public String getParentId()
     {
         return parentId;
     }
 
-    public void setParentId(Long parentId)
+    public void setParentId(String parentId)
     {
         this.parentId = parentId;
     }

@@ -139,6 +139,14 @@ public class LpBaseDevice extends BaseEntity
         return delFlag;
     }
 
+    public List<LpBaseDeviceParameter> getLpBaseDeviceParametersList() {
+        return lpBaseDeviceParametersList;
+    }
+
+    public void setLpBaseDeviceParametersList(List<LpBaseDeviceParameter> lpBaseDeviceParametersList) {
+        this.lpBaseDeviceParametersList = lpBaseDeviceParametersList;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

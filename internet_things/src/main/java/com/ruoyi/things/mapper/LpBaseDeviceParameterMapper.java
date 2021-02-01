@@ -58,4 +58,11 @@ public interface LpBaseDeviceParameterMapper
      * @return 结果
      */
     public int deleteLpBaseDeviceParameterByIds(String[] ids);
+
+    /**
+     * 根据设备id删除设备参数
+     * @param infoId
+     * @return
+     */
+    int deleteByInfoId(String infoId);
 }
