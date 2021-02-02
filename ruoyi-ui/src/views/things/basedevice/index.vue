@@ -148,9 +148,6 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="产品资料文件" prop="fileIds">
-          <el-input v-model="form.fileIds" placeholder="请输入产品资料文件"/>
-        </el-form-item>
         <el-form-item label="生产日期" prop="productionDate">
           <el-date-picker clearable size="small" style="width: 200px"
                           v-model="form.productionDate"
@@ -169,6 +166,11 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="产品资料文件" prop="fileIds">
+<!--          <el-input v-model="form.fileIds" placeholder="请输入产品资料文件"/>-->
+          <FileUpload ref="fileUpload" @func="getFileList"></FileUpload>
+        </el-form-item>
+
         <el-form-item label="备注信息" prop="remarks">
           <el-input v-model="form.remarks" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
@@ -201,14 +203,14 @@
               </el-button>
             </el-row>
             <el-row :span="24">
-              <el-table ref="studentTable" :data="lpBaseDeviceParametersData" style="width: 100%"
+              <el-table ref="studentTable" :data="form.lpBaseDeviceParametersList" style="width: 100%"
                         :row-class-name="tableRowClassName"
                         @selection-change="clickLogCheckboxHandler" @current-change="currentChange"
                         highlight-current-row stripe border>
                 <el-table-column type="index" label="序号"/>
-                <el-table-column prop="name" label="参数名称">
+                <el-table-column label="参数名称">
                   <template slot-scope="scope">
-                    <el-form-item :prop="'lpBaseDeviceParametersData.'+scope.$index+'.name'" label-width="0">
+                    <el-form-item :prop="'lpBaseDeviceParametersList.'+scope.$index+'.name'" label-width="0">
                       <el-input v-if="scope.row.showFormDom" v-model="scope.row.name"/>
                       <div v-else>
                         {{ scope.row.name }}
@@ -216,9 +218,9 @@
                     </el-form-item>
                   </template>
                 </el-table-column>
-                <el-table-column prop="controlType" label="控制类型">
+                <el-table-column label="控制类型">
                   <template slot-scope="scope">
-                    <el-form-item :prop="'lpBaseDeviceParametersData.'+scope.$index+'.controlType'" label-width="0">
+                    <el-form-item :prop="'lpBaseDeviceParametersList.'+scope.$index+'.controlType'" label-width="0">
                       <el-input v-if="scope.row.showFormDom" v-model="scope.row.controlType"/>
                       <div v-else>
                         {{ scope.row.controlType }}
@@ -228,7 +230,7 @@
                 </el-table-column>
                 <el-table-column prop="interfaceName" label="接口名称">
                   <template slot-scope="scope">
-                    <el-form-item :prop="'lpBaseDeviceParametersData.'+scope.$index+'.interfaceName'" label-width="0">
+                    <el-form-item :prop="'lpBaseDeviceParametersList.'+scope.$index+'.interfaceName'" label-width="0">
                       <el-input v-if="scope.row.showFormDom" v-model="scope.row.interfaceName"/>
                       <div v-else>
                         {{ scope.row.interfaceName }}
@@ -236,9 +238,9 @@
                     </el-form-item>
                   </template>
                 </el-table-column>
-                <el-table-column prop="remarks" label="备注信息">
+                <el-table-column label="备注信息">
                   <template slot-scope="scope">
-                    <el-form-item :prop="'lpBaseDeviceParametersData.'+scope.$index+'.remarks'" label-width="0">
+                    <el-form-item :prop="'lpBaseDeviceParametersList.'+scope.$index+'.remarks'" label-width="0">
                       <el-input v-if="scope.row.showFormDom" v-model="scope.row.remarks"/>
                       <div v-else>
                         {{ scope.row.remarks }}
@@ -261,15 +263,20 @@
 
 <script>
     import {listDevice, getDevice, delDevice, addDevice, updateDevice, exportDevice} from "@/api/things/basedevice";
-
+    import FileUpload from "../fileUpload.vue"
     export default {
+        components: {
+            FileUpload
+        },
         name: "Device",
         data() {
             return {
                 // 选中的行
                 selected: null,
                 rowIndex: 0,
-                lpBaseDeviceParametersData: [],
+                fileIds: [],
+                //附件
+                fileList:[],
                 // 遮罩层
                 loading: true,
                 // 选中数组
@@ -350,8 +357,10 @@
                     supplierId: null,
                     remarks: null,
                     delFlag: null,
-                    lpBaseDeviceParametersList: []
+                    lpBaseDeviceParametersList: [],
+                    fileList:[]
                 };
+                this.fileList=[];
                 this.resetForm("form");
             },
             /** 搜索按钮操作 */
@@ -372,25 +381,34 @@
             },
             /** 新增按钮操作 */
             handleAdd() {
-                this.reset();
                 this.open = true;
+                this.reset();
                 this.title = "添加设备基础信息";
+                this.$nextTick(()=>{
+                    this.$refs.fileUpload.setFileList(this.fileList);
+                })
+
             },
             /** 修改按钮操作 */
             handleUpdate(row) {
+                this.open = true;
                 this.reset();
                 const id = row.id || this.ids
                 getDevice(id).then(response => {
-                    console.log(response)
                     this.form = response.data;
-                    this.open = true;
                     this.title = "修改设备基础信息";
-                    this.lpBaseDeviceParametersData = this.form.lpBaseDeviceParametersList
+                    this.fileList = response.data.fileList;
+                    console.log( this.fileList," this.fileList")
+                    this.$nextTick(()=>{
+                        this.$refs.fileUpload.setFileList(this.fileList);
+                    })
                 });
+
+
             },
             /** 提交按钮 */
             submitForm() {
-                this.form.lpBaseDeviceParametersList = JSON.parse(JSON.stringify(this.lpBaseDeviceParametersData));
+                this.form.fileList=JSON.parse(JSON.stringify(this.fileList));
                 this.$refs["form"].validate(valid => {
                     if (valid) {
                         if (this.form.id != null) {
@@ -452,24 +470,24 @@
                 }
                 if (this.selected !== null) {
                     const index = this.selected.row_index
-                    this.$set(this.lpBaseDeviceParametersData[index], 'showFormDom', false)
+                    this.$set(this.form.lpBaseDeviceParametersList[index], 'showFormDom', false)
                 }
-                this.lpBaseDeviceParametersData.push(list);
+                this.form.lpBaseDeviceParametersList.push(list);
                 this.selected = list
-                this.selected.row_index = this.lpBaseDeviceParametersData.length - 1
-                this.$refs.studentTable.setCurrentRow(this.lpBaseDeviceParametersData[this.selected.row_index])
+                this.selected.row_index = this.form.lpBaseDeviceParametersList.length - 1
+                this.$refs.studentTable.setCurrentRow(this.form.lpBaseDeviceParametersList[this.selected.row_index])
 
             },
             currentChange(newRow, oldRow) {
                 if (this.selected !== null) {
                     if (newRow.row_index !== this.selected.row_index) {
                         const index = this.selected.row_index
-                        this.$set(this.lpBaseDeviceParametersData[newRow.row_index], 'showFormDom', true)
-                        this.$set(this.lpBaseDeviceParametersData[index], 'showFormDom', false)
+                        this.$set(this.form.lpBaseDeviceParametersList[newRow.row_index], 'showFormDom', true)
+                        this.$set(this.form.lpBaseDeviceParametersList[index], 'showFormDom', false)
                         this.selected = newRow
                     }
                 } else {
-                    this.$set(this.lpBaseDeviceParametersData[newRow.row_index], 'showFormDom', true)
+                    this.$set(this.form.lpBaseDeviceParametersList[newRow.row_index], 'showFormDom', true)
                     this.selected = newRow
                 }
             },
@@ -479,7 +497,7 @@
                 })
                     .then(() => {
                         if (this.selected !== null) {
-                            this.lpBaseDeviceParametersData.splice(this.selected.row_index, 1)
+                            this.form.lpBaseDeviceParametersList.splice(this.selected.row_index, 1)
                             this.selected = null
                             this.$message({
                                 message: '删除成功',
@@ -504,18 +522,18 @@
                         remarks: '',
                         showFormDom: true
                     }
-                    if (this.lpBaseDeviceParametersData.length > 0) {
+                    if (this.form.lpBaseDeviceParametersList.length > 0) {
                         const index = this.selected.row_index
-                        this.$set(this.lpBaseDeviceParametersData[index], 'showFormDom', false)
-                        this.lpBaseDeviceParametersData.splice(index, 0, list)
+                        this.$set(this.form.lpBaseDeviceParametersList[index], 'showFormDom', false)
+                        this.form.lpBaseDeviceParametersList.splice(index, 0, list)
                         this.selected = list
                         this.selected.row_index = index
-                        this.$refs.studentTable.setCurrentRow(this.lpBaseDeviceParametersData[index])
+                        this.$refs.studentTable.setCurrentRow(this.form.lpBaseDeviceParametersList[index])
                     } else {
-                        this.lpBaseDeviceParametersData.push(list)
+                        this.form.lpBaseDeviceParametersList.push(list)
                         this.selected = list
                         this.selected.row_index = 0
-                        this.$refs.studentTable.setCurrentRow(this.lpBaseDeviceParametersData[0])
+                        this.$refs.studentTable.setCurrentRow(this.form.lpBaseDeviceParametersList[0])
                     }
                 } else {
                     this.$message.warning('请选择插入位置！')
@@ -524,19 +542,19 @@
             handleMove(dir) {
                 if (this.selected !== null) {
                     const moveComm = (curIndex, nextIndex) => {
-                        const arr = this.lpBaseDeviceParametersData
+                        const arr = this.form.lpBaseDeviceParametersList
                         arr[curIndex] = arr.splice(nextIndex, 1, arr[curIndex])[0]
                         return arr
                     }
-                    this.lpBaseDeviceParametersData.some((val, index) => {
+                    this.form.lpBaseDeviceParametersList.some((val, index) => {
                         if (val.name === this.selected.name) {
                             if (dir === 1 && index === 0) {
                                 this.$message.warning('已在顶部！')
-                            } else if (dir === 0 && index === this.lpBaseDeviceParametersData.length - 1) {
+                            } else if (dir === 0 && index === this.form.lpBaseDeviceParametersList.length - 1) {
                                 this.$message.warning('已在底部！')
                             } else {
                                 const nextIndex = dir === 1 ? index - 1 : index + 1
-                                this.lpBaseDeviceParametersData = moveComm(index, nextIndex)
+                                this.form.lpBaseDeviceParametersList = moveComm(index, nextIndex)
                             }
                             return true
                         }
@@ -549,19 +567,19 @@
             handleTopOrBottom(dir) {
                 if (this.selected !== null) {
                     const moveComm = (curIndex, nextIndex) => {
-                        const arr = this.lpBaseDeviceParametersData
+                        const arr = this.form.lpBaseDeviceParametersList
                         arr[curIndex] = arr.splice(nextIndex, 1, arr[curIndex])[0]
                         return arr
                     }
-                    this.lpBaseDeviceParametersData.some((val, index) => {
+                    this.form.lpBaseDeviceParametersList.some((val, index) => {
                         if (val.name === this.selected.name) {
                             if (dir === 1 && index === 0) {
                                 this.$message.warning('已在顶部！')
-                            } else if (dir === 0 && index === this.lpBaseDeviceParametersData.length - 1) {
+                            } else if (dir === 0 && index === this.form.lpBaseDeviceParametersList.length - 1) {
                                 this.$message.warning('已在底部！')
                             } else {
-                                const nextIndex = dir === 1 ? 0 : this.lpBaseDeviceParametersData.length - 1
-                                this.lpBaseDeviceParametersData = moveComm(index, nextIndex)
+                                const nextIndex = dir === 1 ? 0 : this.form.lpBaseDeviceParametersList.length - 1
+                                this.form.lpBaseDeviceParametersList = moveComm(index, nextIndex)
                             }
                             return true
                         }
@@ -576,13 +594,17 @@
                     type: 'warning'
                 })
                     .then(() => {
-                        this.lpBaseDeviceParametersData = []
+                        this.form.lpBaseDeviceParametersList = []
                         this.selected = null
                         this.$message({
                             message: '清空完成！',
                             type: 'success'
                         })
                     })
+            },
+            getFileList(data){
+              this.fileList = data;
+              console.log(this.fileList);
             }
         }
     };

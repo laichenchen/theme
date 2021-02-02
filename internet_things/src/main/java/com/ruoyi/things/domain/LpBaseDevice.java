@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.collect.Lists;
+import com.ruoyi.system.domain.SystemFile;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -55,6 +56,7 @@ public class LpBaseDevice extends BaseEntity
     private String delFlag;
 
     private List<LpBaseDeviceParameter> lpBaseDeviceParametersList =  Lists.newArrayList();
+    private List<SystemFile> fileList =  Lists.newArrayList();
 
     public void setId(String id) 
     {
@@ -145,6 +147,14 @@ public class LpBaseDevice extends BaseEntity
 
     public void setLpBaseDeviceParametersList(List<LpBaseDeviceParameter> lpBaseDeviceParametersList) {
         this.lpBaseDeviceParametersList = lpBaseDeviceParametersList;
+    }
+
+    public List<SystemFile> getFileList() {
+        return fileList;
+    }
+
+    public void setFileList(List<SystemFile> fileList) {
+        this.fileList = fileList;
     }
 
     @Override

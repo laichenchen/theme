@@ -59,6 +59,8 @@ public class LpProjectServiceImpl implements ILpProjectService
         lpProject.setId(IdUtils.fastSimpleUUID());
         lpProject.setCreateTime(DateUtils.getNowDate());
         lpProject.setCreateBy(SecurityUtils.getUsername());
+        lpProject.setUpdateTime(DateUtils.getNowDate());
+        lpProject.setUpdateBy(SecurityUtils.getUsername());
         return lpProjectMapper.insertLpProject(lpProject);
     }
 

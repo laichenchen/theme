@@ -59,6 +59,8 @@ public class LpEnterpriseServiceImpl implements ILpEnterpriseService
         lpEnterprise.setId(IdUtils.fastSimpleUUID());
         lpEnterprise.setCreateTime(DateUtils.getNowDate());
         lpEnterprise.setCreateBy(SecurityUtils.getUsername());
+        lpEnterprise.setUpdateTime(DateUtils.getNowDate());
+        lpEnterprise.setUpdateBy(SecurityUtils.getUsername());
         return lpEnterpriseMapper.insertLpEnterprise(lpEnterprise);
     }
 
