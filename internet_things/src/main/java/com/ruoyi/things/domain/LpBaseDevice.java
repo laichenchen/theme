@@ -48,6 +48,9 @@ public class LpBaseDevice extends BaseEntity
     /** 设备厂家ID */
     @Excel(name = "设备厂家ID")
     private String supplierId;
+    /** 地理位置坐标*/
+    @Excel(name = "地理位置坐标")
+    private String latlng;
 
     /** 备注信息 */
     private String remarks;
@@ -76,7 +79,16 @@ public class LpBaseDevice extends BaseEntity
     {
         return name;
     }
-    public void setModel(String model) 
+
+    public String getLatlng() {
+        return latlng;
+    }
+
+    public void setLatlng(String latlng) {
+        this.latlng = latlng;
+    }
+
+    public void setModel(String model)
     {
         this.model = model;
     }

@@ -87,7 +87,6 @@
       <el-table-column label="设备名称" align="center" prop="name"/>
       <el-table-column label="设备型号" align="center" prop="model"/>
       <el-table-column label="设备类型" align="center" prop="type" :formatter="typeFormat"/>
-      <el-table-column label="产品资料文件" align="center" prop="fileIds"/>
       <el-table-column label="生产日期" align="center" prop="productionDate" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.productionDate, '{y}-{m}-{d}') }}</span>
@@ -131,7 +130,7 @@
 
     <!-- 添加或修改设备基础信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="设备名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入设备名称"/>
         </el-form-item>
@@ -170,40 +169,43 @@
 <!--          <el-input v-model="form.fileIds" placeholder="请输入产品资料文件"/>-->
           <FileUpload ref="fileUpload" @func="getFileList"></FileUpload>
         </el-form-item>
-
+        <el-form-item label="地理位置" prop="fileIds">
+          <el-link :underline="false" type="primary" @click="showMap"><i style="font-size: 25px;" class="el-icon-location-information"></i></el-link>
+          <LeafletMap ref="leafletMap" v-if="mapShow" @func="getLatLng"></LeafletMap>
+        </el-form-item>
         <el-form-item label="备注信息" prop="remarks">
-          <el-input v-model="form.remarks" type="textarea" placeholder="请输入内容"/>
+          <el-input v-model="form.remarks" type="textarea" placeholder="请输入内容" />
         </el-form-item>
         <el-row>
           <el-card>
             <el-row class="text-right m-b">
-              <el-button type="primary" @click="handleAddSub()">
+              <el-button type="primary" size="mini" @click="handleAddSub()">
                 添加行
               </el-button>
-              <el-button type="danger" plain @click="batchRemove">
+              <el-button type="danger" size="mini" plain @click="batchRemove">
                 删除行
               </el-button>
-              <el-button type="primary" @click="handleInsert">
+              <el-button type="primary" size="mini" @click="handleInsert">
                 插入行
               </el-button>
-              <el-button type="primary" @click="handleMove(1)">
+              <el-button type="primary" size="mini" @click="handleMove(1)">
                 上移
               </el-button>
-              <el-button type="primary" @click="handleMove(0)">
+              <el-button type="primary" size="mini" @click="handleMove(0)">
                 下移
               </el-button>
-              <el-button type="primary" @click="handleTopOrBottom(1)">
+              <el-button type="primary" size="mini" @click="handleTopOrBottom(1)">
                 置顶
               </el-button>
-              <el-button type="primary" @click="handleTopOrBottom(0)">
+              <el-button type="primary" size="mini" @click="handleTopOrBottom(0)">
                 置底
               </el-button>
-              <el-button type="primary" @click="clearList">
+              <el-button type="primary" size="mini" @click="clearList">
                 清空
               </el-button>
             </el-row>
             <el-row :span="24">
-              <el-table ref="studentTable" :data="form.lpBaseDeviceParametersList" style="width: 100%"
+              <el-table ref="studentTable" :data="form.lpBaseDeviceParametersList" style="width: 100%;margin-top: 5px"
                         :row-class-name="tableRowClassName"
                         @selection-change="clickLogCheckboxHandler" @current-change="currentChange"
                         highlight-current-row stripe border>
@@ -264,9 +266,11 @@
 <script>
     import {listDevice, getDevice, delDevice, addDevice, updateDevice, exportDevice} from "@/api/things/basedevice";
     import FileUpload from "../fileUpload.vue"
+    import LeafletMap from "../vueLeaflet.vue"
     export default {
         components: {
-            FileUpload
+            FileUpload,
+            LeafletMap
         },
         name: "Device",
         data() {
@@ -310,7 +314,9 @@
                 // 表单参数
                 form: {},
                 // 表单校验
-                rules: {}
+                rules: {},
+                //地图显示
+                mapShow:false,
             };
         },
         created() {
@@ -358,10 +364,12 @@
                     remarks: null,
                     delFlag: null,
                     lpBaseDeviceParametersList: [],
-                    fileList:[]
+                    fileList:[],
+                    latlng:null
                 };
                 this.fileList=[];
                 this.resetForm("form");
+                this.mapShow=false
             },
             /** 搜索按钮操作 */
             handleQuery() {
@@ -381,11 +389,12 @@
             },
             /** 新增按钮操作 */
             handleAdd() {
-                this.open = true;
-                this.reset();
-                this.title = "添加设备基础信息";
-                this.$nextTick(()=>{
-                    this.$refs.fileUpload.setFileList(this.fileList);
+                let _this=this;
+                _this.open = true;
+                _this.reset();
+                _this.title = "添加设备基础信息";
+                _this.$nextTick(()=>{
+                    _this.$refs.fileUpload.setFileList(_this.fileList);
                 })
 
             },
@@ -398,16 +407,15 @@
                     this.form = response.data;
                     this.title = "修改设备基础信息";
                     this.fileList = response.data.fileList;
-                    console.log( this.fileList," this.fileList")
                     this.$nextTick(()=>{
                         this.$refs.fileUpload.setFileList(this.fileList);
                     })
                 });
 
-
             },
             /** 提交按钮 */
             submitForm() {
+                this.$refs["leafletMap"].setLatLng()
                 this.form.fileList=JSON.parse(JSON.stringify(this.fileList));
                 this.$refs["form"].validate(valid => {
                     if (valid) {
@@ -605,6 +613,17 @@
             getFileList(data){
               this.fileList = data;
               console.log(this.fileList);
+            },
+            showMap(){
+                this.mapShow=true;
+                this.$nextTick(()=>{
+                    this.$refs.leafletMap.resetLatlng(this.form.latlng);
+                })
+
+            },
+            getLatLng(data){
+                this.form.latlng = JSON.stringify(data);
+                console.log(this.form.latlng,"this.form.latlng")
             }
         }
     };

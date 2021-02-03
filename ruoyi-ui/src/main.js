@@ -22,6 +22,10 @@ import { parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, 
 import Pagination from "@/components/Pagination";
 //自定义表格工具扩展
 import RightToolbar from "@/components/RightToolbar"
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css'
+import L from 'leaflet';
+import less from 'less'
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
@@ -51,6 +55,7 @@ Vue.component('Pagination', Pagination)
 Vue.component('RightToolbar', RightToolbar)
 
 Vue.use(permission)
+Vue.use(less)
 
 /**
  * If you don't want to use mock-server
@@ -66,6 +71,15 @@ Vue.use(Element, {
 })
 
 Vue.config.productionTip = false
+
+
+/* leaflet icon */
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
 
 new Vue({
   el: '#app',
