@@ -66,7 +66,8 @@
       </el-col>
 	  <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
-
+    <el-row :gutter="10">
+      <el-col :span="12">
     <el-table v-loading="loading" :data="enterpriseList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="名称" align="center" prop="name" />
@@ -74,31 +75,8 @@
       <el-table-column label="联系人" align="center" prop="contact" />
       <el-table-column label="联系电话" align="center" prop="contactMobile" />
       <el-table-column label="邮件地址" align="center" prop="email" />
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['things:enterprise:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['things:enterprise:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -106,10 +84,14 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
-
+      </el-col>
+      <el-col :span="12">
+        <ShowLeafletMap ref="showLeafletMap"></ShowLeafletMap>
+      </el-col>
+    </el-row>
     <!-- 添加或修改企业信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入名称" />
         </el-form-item>
@@ -127,7 +109,8 @@
           <el-input v-model="form.addressDetail" placeholder="请输入地址详情" />
         </el-form-item>
         <el-form-item label="地图坐标" prop="addressMap">
-          <el-input v-model="form.addressMap" placeholder="请输入地图坐标" />
+          <el-link :underline="false" type="primary" @click="showMap"><i style="font-size: 25px;" class="el-icon-location-information"></i></el-link>
+          <LeafletMap ref="leafletMap" v-if="mapShow" @func="getLatLng"></LeafletMap>
         </el-form-item>
         <el-form-item label="联系人" prop="contact">
           <el-input v-model="form.contact" placeholder="请输入联系人" />
@@ -137,6 +120,9 @@
         </el-form-item>
         <el-form-item label="邮件地址" prop="email">
           <el-input v-model="form.email" placeholder="请输入邮件地址" />
+        </el-form-item>
+        <el-form-item label="企业文件资料" prop="fileIds">
+          <FileUpload ref="fileUpload" @func="getFileList"></FileUpload>
         </el-form-item>
         <el-form-item label="备注信息" prop="remarks">
           <el-input v-model="form.remarks" placeholder="请输入备注信息" />
@@ -152,9 +138,16 @@
 
 <script>
 import { listEnterprise, getEnterprise, delEnterprise, addEnterprise, updateEnterprise, exportEnterprise } from "@/api/things/enterprise";
-
+import FileUpload from "../fileUpload.vue"
+import LeafletMap from "../editVueLeaflet.vue"
+import ShowLeafletMap from "../showVueLeaflet.vue"
 export default {
   name: "Enterprise",
+    components: {
+        FileUpload,
+        LeafletMap,
+        ShowLeafletMap
+    },
   data() {
     return {
       // 遮罩层
@@ -188,7 +181,12 @@ export default {
       form: {},
       // 表单校验
       rules: {
-      }
+      },
+        fileIds: [],
+        //附件
+        fileList:[],
+        //地图显示
+        mapShow:false
     };
   },
   created() {
@@ -205,6 +203,11 @@ export default {
         this.enterpriseList = response.rows;
         this.total = response.total;
         this.loading = false;
+          if(response.rows.length>0){
+              this.$nextTick(()=>{
+                  this.$refs.showLeafletMap.resetLatlng(response.rows);
+              })
+          }
       });
     },
     // 地址字典翻译
@@ -228,9 +231,13 @@ export default {
         contactMobile: null,
         email: null,
         remarks: null,
-        delFlag: null
+        delFlag: null,
+          fileList:[],
+          latlng:null
       };
       this.resetForm("form");
+        this.fileList=[];
+        this.mapShow=false
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -253,6 +260,9 @@ export default {
       this.reset();
       this.open = true;
       this.title = "添加企业信息";
+        this.$nextTick(()=>{
+            this.$refs.fileUpload.setFileList(this.fileList);
+        })
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -262,10 +272,16 @@ export default {
         this.form = response.data;
         this.open = true;
         this.title = "修改企业信息";
+          this.fileList = response.data.fileList;
+          this.$nextTick(()=>{
+              this.$refs.fileUpload.setFileList(this.fileList);
+          })
       });
     },
     /** 提交按钮 */
     submitForm() {
+        this.$refs["leafletMap"].setLatLng()
+        this.form.fileList=JSON.parse(JSON.stringify(this.fileList));
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
@@ -310,7 +326,24 @@ export default {
         }).then(response => {
           this.download(response.msg);
         })
-    }
+    },
+      getFileList(data){
+          this.fileList = data;
+          console.log(this.fileList);
+      },
+      showMap(){
+          this.mapShow=true;
+          this.$nextTick(()=>{
+              this.$refs.leafletMap.resetLatlng(this.form.latlng);
+          })
+
+      },
+      getLatLng(data){
+          this.form.latlng = JSON.stringify(data);
+      },
+      rowClick(selection, row){
+          this.$refs.showLeafletMap.lightHeight(selection.id);
+      }
   }
 };
 </script>

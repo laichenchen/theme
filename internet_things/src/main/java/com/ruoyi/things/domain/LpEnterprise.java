@@ -1,7 +1,11 @@
 package com.ruoyi.things.domain;
 
 import java.util.Date;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
+import com.ruoyi.system.domain.SystemFile;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -36,7 +40,7 @@ public class LpEnterprise extends BaseEntity
     private String addressDetail;
 
     /** 地图坐标 */
-    private String addressMap;
+    private String latlng;
 
     /** 联系人 */
     @Excel(name = "联系人")
@@ -50,6 +54,8 @@ public class LpEnterprise extends BaseEntity
     @Excel(name = "邮件地址")
     private String email;
 
+    /** 文件资料 */
+    private String fileIds;
 
     /** 备注信息 */
     private String remarks;
@@ -57,5 +63,6 @@ public class LpEnterprise extends BaseEntity
     /** 删除标记（0：正常 1：删除） */
     private String delFlag;
 
+    private List<SystemFile> fileList =  Lists.newArrayList();
 
 }

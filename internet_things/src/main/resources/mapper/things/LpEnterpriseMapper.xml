@@ -9,10 +9,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="name"    column="name"    />
         <result property="address"    column="address"    />
         <result property="addressDetail"    column="address_detail"    />
-        <result property="addressMap"    column="address_map"    />
+        <result property="latlng"    column="latlng"    />
         <result property="contact"    column="contact"    />
         <result property="contactMobile"    column="contact_mobile"    />
         <result property="email"    column="email"    />
+        <result property="fileIds"    column="file_ids"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -22,7 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectLpEnterpriseVo">
-        select id, name, address, address_detail, address_map, contact, contact_mobile, email, create_by, create_time, update_by, update_time, remarks, del_flag from lp_enterprise
+        select id, name, address, address_detail, latlng, contact, contact_mobile, email,file_ids create_by, create_time, update_by, update_time, remarks, del_flag from lp_enterprise
     </sql>
 
     <select id="selectLpEnterpriseList" parameterType="LpEnterprise" resultMap="LpEnterpriseResult">
@@ -45,10 +46,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null">name,</if>
             <if test="address != null">address,</if>
             <if test="addressDetail != null">address_detail,</if>
-            <if test="addressMap != null">address_map,</if>
+            <if test="latlng != null">latlng,</if>
             <if test="contact != null">contact,</if>
             <if test="contactMobile != null">contact_mobile,</if>
             <if test="email != null">email,</if>
+            <if test="fileIds != null">file_ids,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
@@ -61,10 +63,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null">#{name},</if>
             <if test="address != null">#{address},</if>
             <if test="addressDetail != null">#{addressDetail},</if>
-            <if test="addressMap != null">#{addressMap},</if>
+            <if test="latlng != null">#{latlng},</if>
             <if test="contact != null">#{contact},</if>
             <if test="contactMobile != null">#{contactMobile},</if>
             <if test="email != null">#{email},</if>
+            <if test="fileIds != null">#{fileIds},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
@@ -80,10 +83,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null">name = #{name},</if>
             <if test="address != null">address = #{address},</if>
             <if test="addressDetail != null">address_detail = #{addressDetail},</if>
-            <if test="addressMap != null">address_map = #{addressMap},</if>
+            <if test="latlng != null">latlng = #{latlng},</if>
             <if test="contact != null">contact = #{contact},</if>
             <if test="contactMobile != null">contact_mobile = #{contactMobile},</if>
             <if test="email != null">email = #{email},</if>
+            <if test="fileIds != null">file_ids = #{fileIds},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>

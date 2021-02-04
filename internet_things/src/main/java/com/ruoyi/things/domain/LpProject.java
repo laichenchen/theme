@@ -1,7 +1,11 @@
 package com.ruoyi.things.domain;
 
 import java.util.Date;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
+import com.ruoyi.system.domain.SystemFile;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -44,12 +48,32 @@ public class LpProject extends BaseEntity
     @Excel(name = "项目相关文件")
     private String fileIds;
 
+    /** 地理位置坐标*/
+    @Excel(name = "地理位置坐标")
+    private String latlng;
+
+    public String getLatlng() {
+        return latlng;
+    }
+
+    public void setLatlng(String latlng) {
+        this.latlng = latlng;
+    }
+
+    public List<SystemFile> getFileList() {
+        return fileList;
+    }
+
+    public void setFileList(List<SystemFile> fileList) {
+        this.fileList = fileList;
+    }
 
     /** 备注信息 */
     private String remarks;
 
     /** 删除标记（0：正常 1：删除） */
     private String delFlag;
+    private List<SystemFile> fileList =  Lists.newArrayList();
 
     public void setId(String id) 
     {

@@ -81,52 +81,58 @@
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
+    <el-row :gutter="10">
+    <el-col :span="12">
+      <el-table v-loading="loading" :data="deviceList" @selection-change="handleSelectionChange" @row-click="rowClick">
+        <el-table-column type="selection" width="55" align="center"/>
+        <el-table-column label="设备名称" align="center" prop="name"/>
+        <el-table-column label="设备型号" align="center" prop="model"/>
+        <el-table-column label="设备类型" align="center" prop="type" :formatter="typeFormat"/>
+        <el-table-column label="生产日期" align="center" prop="productionDate" width="180">
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.productionDate, '{y}-{m}-{d}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="设备厂家" align="center" prop="supplierId" :formatter="supplierIdFormat"/>
+<!--        <el-table-column label="更新时间" align="center" prop="updateTime" width="180">-->
+<!--          <template slot-scope="scope">-->
+<!--            <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
+<!--        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
+<!--          <template slot-scope="scope">-->
+<!--            <el-button-->
+<!--              size="mini"-->
+<!--              type="text"-->
+<!--              icon="el-icon-edit"-->
+<!--              @click="handleUpdate(scope.row)"-->
+<!--              v-hasPermi="['things:basedevice:edit']"-->
+<!--            >修改-->
+<!--            </el-button>-->
+<!--            <el-button-->
+<!--              size="mini"-->
+<!--              type="text"-->
+<!--              icon="el-icon-delete"-->
+<!--              @click="handleDelete(scope.row)"-->
+<!--              v-hasPermi="['things:basedevice:remove']"-->
+<!--            >删除-->
+<!--            </el-button>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
+      </el-table>
 
-    <el-table v-loading="loading" :data="deviceList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="设备名称" align="center" prop="name"/>
-      <el-table-column label="设备型号" align="center" prop="model"/>
-      <el-table-column label="设备类型" align="center" prop="type" :formatter="typeFormat"/>
-      <el-table-column label="生产日期" align="center" prop="productionDate" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.productionDate, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="设备厂家" align="center" prop="supplierId" :formatter="supplierIdFormat"/>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['things:basedevice:edit']"
-          >修改
-          </el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['things:basedevice:remove']"
-          >删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+      <pagination
+        v-show="total>0"
+        :total="total"
+        :page.sync="queryParams.pageNum"
+        :limit.sync="queryParams.pageSize"
+        @pagination="getList"
+      />
+    </el-col>
+      <el-col :span="12">
+        <ShowLeafletMap ref="showLeafletMap"></ShowLeafletMap>
+      </el-col>
+    </el-row>
 
     <!-- 添加或修改设备基础信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
@@ -266,11 +272,13 @@
 <script>
     import {listDevice, getDevice, delDevice, addDevice, updateDevice, exportDevice} from "@/api/things/basedevice";
     import FileUpload from "../fileUpload.vue"
-    import LeafletMap from "../vueLeaflet.vue"
+    import LeafletMap from "../editVueLeaflet.vue"
+    import ShowLeafletMap from "../showVueLeaflet.vue"
     export default {
         components: {
             FileUpload,
-            LeafletMap
+            LeafletMap,
+            ShowLeafletMap
         },
         name: "Device",
         data() {
@@ -316,7 +324,7 @@
                 // 表单校验
                 rules: {},
                 //地图显示
-                mapShow:false,
+                mapShow:false
             };
         },
         created() {
@@ -336,6 +344,11 @@
                     this.deviceList = response.rows;
                     this.total = response.total;
                     this.loading = false;
+                    if(response.rows.length>0){
+                        this.$nextTick(()=>{
+                            this.$refs.showLeafletMap.resetLatlng(response.rows);
+                        })
+                    }
                 });
             },
             // 设备类型(01.温度02.压力)字典翻译
@@ -623,7 +636,9 @@
             },
             getLatLng(data){
                 this.form.latlng = JSON.stringify(data);
-                console.log(this.form.latlng,"this.form.latlng")
+            },
+            rowClick(selection, row){
+                this.$refs.showLeafletMap.lightHeight(selection.id);
             }
         }
     };

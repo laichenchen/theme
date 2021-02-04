@@ -1,10 +1,16 @@
 package com.ruoyi.things.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.uuid.IdUtils;
+import com.ruoyi.system.domain.SystemFile;
+import com.ruoyi.system.service.ISystemFileService;
+import com.ruoyi.things.domain.LpBaseDevice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.things.mapper.LpProjectMapper;
@@ -23,6 +29,9 @@ public class LpProjectServiceImpl implements ILpProjectService
     @Autowired
     private LpProjectMapper lpProjectMapper;
 
+    @Autowired
+    private ISystemFileService systemFileService;
+
     /**
      * 查询项目申请
      * 
@@ -32,7 +41,16 @@ public class LpProjectServiceImpl implements ILpProjectService
     @Override
     public LpProject selectLpProjectById(String id)
     {
-        return lpProjectMapper.selectLpProjectById(id);
+        LpProject lpProject = lpProjectMapper.selectLpProjectById(id);
+        //获取附件
+        String fileIds = lpProject.getFileIds();
+        if(StringUtils.isNotBlank(fileIds)){
+            List<SystemFile> fileList = systemFileService.selectFileListByIds(fileIds.split(","));
+            if (Objects.nonNull(fileList)) {
+                lpProject.setFileList(fileList);
+            }
+        }
+        return lpProject;
     }
 
     /**
@@ -61,6 +79,17 @@ public class LpProjectServiceImpl implements ILpProjectService
         lpProject.setCreateBy(SecurityUtils.getUsername());
         lpProject.setUpdateTime(DateUtils.getNowDate());
         lpProject.setUpdateBy(SecurityUtils.getUsername());
+        //保存文件
+        List<String> fileIds = new ArrayList<>();
+        if (Objects.nonNull(lpProject.getFileList())) {
+            for (int i = 0; i < lpProject.getFileList().size(); i++) {
+                fileIds.add(lpProject.getFileList().get(i).getId());
+                lpProject.getFileList().get(i).setUploadTime(DateUtils.getNowDate());
+                lpProject.getFileList().get(i).setUploadBy(SecurityUtils.getUsername());
+                systemFileService.insertFile(lpProject.getFileList().get(i));
+            }
+        }
+        lpProject.setFileIds(String.join(",", fileIds));
         return lpProjectMapper.insertLpProject(lpProject);
     }
 
@@ -73,6 +102,22 @@ public class LpProjectServiceImpl implements ILpProjectService
     @Override
     public int updateLpProject(LpProject lpProject)
     {
+        //删除原有附件
+        LpProject old = lpProjectMapper.selectLpProjectById(lpProject.getId());
+        if(StringUtils.isNotBlank(old.getFileIds())){
+            systemFileService.deleteFileByIds(old.getFileIds().split(","));
+        }
+        //保存文件
+        List<String> fileIds = new ArrayList<>();
+        if (Objects.nonNull(lpProject.getFileList())) {
+            for (int i = 0; i < lpProject.getFileList().size(); i++) {
+                fileIds.add(lpProject.getFileList().get(i).getId());
+                lpProject.getFileList().get(i).setUploadTime(DateUtils.getNowDate());
+                lpProject.getFileList().get(i).setUploadBy(SecurityUtils.getUsername());
+                systemFileService.insertFile(lpProject.getFileList().get(i));
+            }
+        }
+        lpProject.setFileIds(String.join(",", fileIds));
         lpProject.setUpdateTime(DateUtils.getNowDate());
         lpProject.setUpdateBy(SecurityUtils.getUsername());
         return lpProjectMapper.updateLpProject(lpProject);
