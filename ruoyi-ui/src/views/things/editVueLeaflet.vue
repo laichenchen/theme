@@ -23,27 +23,27 @@
             }
         },
         mounted() {
-            L.DrawToolbar.include({
-                getModeHandlers: function (map) {
-                    return [
-                        {
-                            enabled: true,
-                            handler: new L.Draw.Polyline(map, { metric: true, repeatMode: true }),
-                            title: '画线'
-                        },
-                        {
-                            enabled: true,
-                            handler: new L.Draw.Polygon(map, { allowIntersection: false, showArea: true, metric: true, repeatMode: false }),
-                            title: '画面'
-                        },
-                        {
-                            enabled: true,
-                            handler: new L.Draw.Marker(map, { icon: new L.Icon.Default() }),
-                            title: '画点'
-                        },
-                    ];
-                }
-            });
+            // L.DrawToolbar.include({
+            //     getModeHandlers: function (map) {
+            //         return [
+            //             {
+            //                 enabled: true,
+            //                 handler: new L.Draw.Polyline(map, { metric: true, repeatMode: true }),
+            //                 title: '画线'
+            //             },
+            //             {
+            //                 enabled: true,
+            //                 handler: new L.Draw.Polygon(map, { allowIntersection: false, showArea: true, metric: true, repeatMode: false }),
+            //                 title: '画面'
+            //             },
+            //             {
+            //                 enabled: true,
+            //                 handler: new L.Draw.Marker(map, { icon: new L.Icon.Default() }),
+            //                 title: '画点'
+            //             },
+            //         ];
+            //     }
+            // });
 
             this.map=L.map(this.$el,{
                 drawControl: false
@@ -77,6 +77,7 @@
                 }
                 _this.layer = event.layer;
                 _this.drawnItems.addLayer( _this.layer);
+                _this.$emit('func', _this.layer.toGeoJSON())
             });
         },
         methods:{

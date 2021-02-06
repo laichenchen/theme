@@ -68,7 +68,7 @@
     </el-row>
     <el-row :gutter="10">
       <el-col :span="12">
-    <el-table v-loading="loading" :data="enterpriseList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="enterpriseList" @selection-change="handleSelectionChange" highlight-current-row>
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="地址" align="center" prop="address" :formatter="addressFormat" />
@@ -329,14 +329,16 @@ export default {
     },
       getFileList(data){
           this.fileList = data;
-          console.log(this.fileList);
       },
       showMap(){
-          this.mapShow=true;
-          this.$nextTick(()=>{
-              this.$refs.leafletMap.resetLatlng(this.form.latlng);
-          })
-
+        if(this.mapShow){
+            this.mapShow=false
+        }else {
+            this.mapShow=true;
+            this.$nextTick(()=>{
+                this.$refs.leafletMap.resetLatlng(this.form.latlng);
+            })
+        }
       },
       getLatLng(data){
           this.form.latlng = JSON.stringify(data);

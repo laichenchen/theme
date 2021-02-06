@@ -23,11 +23,11 @@
       <el-form-item label="设备厂家" prop="supplierId">
         <el-select v-model="queryParams.supplierId" placeholder="请选择设备厂家" clearable size="small">
           <el-option
-            v-for="dict in supplierIdOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
-          />
+            v-for="supplier in supplierIdOptions"
+            :key="supplier.id"
+            :label="supplier.name"
+            :value="supplier.id"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -83,7 +83,7 @@
     </el-row>
     <el-row :gutter="10">
     <el-col :span="12">
-      <el-table v-loading="loading" :data="deviceList" @selection-change="handleSelectionChange" @row-click="rowClick">
+      <el-table v-loading="loading" :data="deviceList" @selection-change="handleSelectionChange" @row-click="rowClick" highlight-current-row>
         <el-table-column type="selection" width="55" align="center"/>
         <el-table-column label="设备名称" align="center" prop="name"/>
         <el-table-column label="设备型号" align="center" prop="model"/>
@@ -161,13 +161,13 @@
                           placeholder="选择生产日期">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="设备厂家ID" prop="supplierId">
-          <el-select v-model="form.supplierId" placeholder="请选择设备厂家ID">
+        <el-form-item label="设备厂家" prop="supplierId">
+          <el-select v-model="form.supplierId" placeholder="请选择设备厂家">
             <el-option
-              v-for="dict in supplierIdOptions"
-              :key="dict.dictValue"
-              :label="dict.dictLabel"
-              :value="dict.dictValue"
+              v-for="supplier in supplierIdOptions"
+              :key="supplier.id"
+              :label="supplier.name"
+              :value="supplier.id"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -271,6 +271,7 @@
 
 <script>
     import {listDevice, getDevice, delDevice, addDevice, updateDevice, exportDevice} from "@/api/things/basedevice";
+    import {listEnterprise} from "@/api/things/enterprise";
     import FileUpload from "../fileUpload.vue"
     import LeafletMap from "../editVueLeaflet.vue"
     import ShowLeafletMap from "../showVueLeaflet.vue"
@@ -332,8 +333,12 @@
             this.getDicts("sys_user_sex").then(response => {
                 this.typeOptions = response.data;
             });
-            this.getDicts("sys_user_sex").then(response => {
-                this.supplierIdOptions = response.data;
+            // this.getDicts("sys_user_sex").then(response => {
+            //     this.supplierIdOptions = response.data;
+            // });
+            listEnterprise().then(response => {
+                console.log(response.rows,"listEnterprise")
+                this.supplierIdOptions = response.rows;
             });
         },
         methods: {
@@ -428,7 +433,7 @@
             },
             /** 提交按钮 */
             submitForm() {
-                this.$refs["leafletMap"].setLatLng()
+               // this.$refs["leafletMap"].setLatLng();
                 this.form.fileList=JSON.parse(JSON.stringify(this.fileList));
                 this.$refs["form"].validate(valid => {
                     if (valid) {
@@ -625,14 +630,16 @@
             },
             getFileList(data){
               this.fileList = data;
-              console.log(this.fileList);
             },
             showMap(){
-                this.mapShow=true;
-                this.$nextTick(()=>{
-                    this.$refs.leafletMap.resetLatlng(this.form.latlng);
-                })
-
+                if(this.mapShow){
+                    this.mapShow=false
+                }else {
+                    this.mapShow=true;
+                    this.$nextTick(()=>{
+                        this.$refs.leafletMap.resetLatlng(this.form.latlng);
+                    })
+                }
             },
             getLatLng(data){
                 this.form.latlng = JSON.stringify(data);
@@ -643,3 +650,4 @@
         }
     };
 </script>
+

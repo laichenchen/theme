@@ -49,7 +49,7 @@
                             this.geoLayers.push(geoLayer);
                         }
                     }
-                    this.map.fitBounds(this.drawnItems.getBounds());
+                    this.map.fitBounds(this.drawnItems.getBounds(),{maxZoom:15});
                 }
             },
             lightHeight(id){
@@ -57,8 +57,10 @@
                 let result = this.geoLayers.filter((a,i)=>{
                     return id === a.id
                 });
+
+                this.map.fitBounds(result[0].getBounds(),{maxZoom:15});
+                // this.map.flyToBounds(result[0].getBounds(),{maxZoom:15});
                 result[0].openPopup();
-                this.map.flyToBounds(result[0].getBounds(),{maxZoom:15});
             }
         }
 
